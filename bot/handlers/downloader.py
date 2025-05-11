@@ -24,10 +24,6 @@ class Downloader:
         self.lang = Databases.ud.value.get_lang(self.user_id)
 
     async def run(self) -> None:
-        if self.user_id in Downloader.currently_downloading:
-            await self.message.answer(ErrorMessage.MULTIPLE_VIDEOS_ERROR.value[self.lang])
-            return
-
         Downloader.currently_downloading.add(self.user_id)
         status_msg = await self.message.answer(Messages.PREPARING.value[self.lang])
 
@@ -43,14 +39,9 @@ class Downloader:
             await self.message.delete()
             await status_msg.delete()
 
-            if random.randint(1, 5) == 1:
-                promo_msg = await self.message.answer(Messages.PROMO.value[self.lang])
-                await asyncio.sleep(15)
-                await promo_msg.delete()
-
         except exceptions.TelegramEntityTooLarge:
             msg = await self.message.answer(ErrorMessage.SIZE_LIMIT.value[self.lang])
-            await msg.edit_text(self._publish(self.filename))
+            #await msg.edit_text(self._publish(self.filename))
             await self.message.delete()
 
         except yt_dlp.DownloadError as e:
